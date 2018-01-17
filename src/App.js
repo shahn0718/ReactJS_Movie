@@ -4,29 +4,59 @@ import './App.css';
 import Movie from './Movie';
 
 
-const movieTitles = [
-    'Matrix',
-    'OldBoy',
-    'HarryPotter',
-    'Avengers',
-]
-
-const movieImages = [
-  'http://imgc.allpostersimages.com/img/posters/the-matrix_u-L-F4S5W20.jpg',
-  'https://upload.wikimedia.org/wikipedia/en/thumb/6/67/Oldboykoreanposter.jpg/220px-Oldboykoreanposter.jpg',
-  'https://i.pinimg.com/736x/8f/f6/0f/8ff60f020b18bd5468193fbffebcb33c--david-yates-the-order.jpg',
-  'https://images-na.ssl-images-amazon.com/images/I/51fzL7oijUL._AC_UL320_SR214,320_.jpg',
-]
-
 class App extends Component {
-  render() {
-    return (
-      <div className="App">
-       <Movie title={movieTitles[0]} poster={movieImages[0]}/>
-       <Movie title={movieTitles[1]} poster={movieImages[1]}/>
-       <Movie title={movieTitles[2]} poster={movieImages[2]}/>
-       <Movie title={movieTitles[3]} poster={movieImages[3]}/>
 
+  state = {
+
+  }
+
+  componentDidMount(){
+    this._getMovies();
+    /*
+    .then(function)
+    .catch(function(err){
+      console.log(err)
+    })
+    */
+  }
+
+  _renderMovies = () => {
+    const movies =this.state.movies.map( (movie) => {
+      console.log(movie)
+      return <Movie
+        title={movie.title_english}
+        poster={movie.medium_cover_image}
+        key={movie.id}
+        genres={movie.genres}
+        synopsis={movie.synopsis}
+
+      />
+    })
+    return movies
+  }
+
+  _getMovies = async () => {
+    const movies = await this._callApi()
+    this.setState({
+      //movies
+      movies : movies
+    })
+  }
+
+
+  _callApi = () =>{
+    return fetch('https://yts.am/api/v2/list_movies.json?sorty_by=rating')
+    .then(response => response.json())
+    .then(json => json.data.movies)
+    .catch(err => console.log(err))
+  }
+
+  render() {
+    const {movies} =this.state;
+    return (
+
+      <div className={movies ? 'App' : 'App--loading'}>
+        {this.state.movies ? this._renderMovies() : 'Loading!'}
       </div>
     );
   }
